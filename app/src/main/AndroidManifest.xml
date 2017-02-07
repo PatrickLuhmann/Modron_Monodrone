@@ -17,8 +17,12 @@
 			android:label="Title bar label here">
 			<intent-filter android:label="intent label test">
 				<action android:name="android.intent.action.MAIN"/>
+
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
+		</activity>
+		<activity android:name=".ButtonResponse"
+			android:label="Button Response Sample">
 		</activity>
 	</application>
 
