@@ -13,6 +13,7 @@ public class ButtonResponse extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_button_response);
+		MyDebug.Print(this.getClass().getSimpleName(), "onCreate");
 
 		TextView msg = new TextView(this);
 		msg.setText("Welcome to the Button Response sample");
@@ -28,6 +29,5 @@ public class ButtonResponse extends Activity {
 		clickCountText.setText("Number of clicks: 0");
 		layout.addView(clickCountText);
 
-		Log.v("nerdyneutrino", "This is a test log message");
 	}
 }

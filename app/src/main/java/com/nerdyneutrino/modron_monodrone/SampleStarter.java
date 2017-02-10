@@ -3,6 +3,7 @@ package com.nerdyneutrino.modron_monodrone;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -17,6 +18,7 @@ public class SampleStarter extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, samples));
+		MyDebug.Print(this.getClass().getSimpleName(), "onCreate");
 	}
 	@Override
 	protected void onListItemClick(ListView list, View view, int position, long id) {
@@ -30,8 +32,8 @@ public class SampleStarter extends ListActivity {
 				startActivity(intent);
 				break;
 			default:
+				MyDebug.Print(this.getClass().getSimpleName(), "Click on item not implemented yet.");
 				break;
 		}
 	}
-
 }
