@@ -1,4 +1,4 @@
-package com.neurdyneutrino.modron_monodrone;
+package com.nerdyneutrino.modron_monodrone;
 
 import android.app.Activity;
 import android.os.Bundle;

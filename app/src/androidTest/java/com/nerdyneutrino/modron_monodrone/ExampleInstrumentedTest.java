@@ -1,4 +1,4 @@
-package com.neurdyneutrino.modron_monodrone;
+package com.nerdyneutrino.modron_monodrone;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.neurdyneutrino.modron_monodrone", appContext.getPackageName());
+        assertEquals("com.nerdyneutrino.modron_monodrone", appContext.getPackageName());
     }
 }
