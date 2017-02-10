@@ -31,6 +31,8 @@
 		</activity>
 		<activity android:name=".ButtonResponseTarget">
 		</activity>
+		<activity android:name=".Drawing">
+		</activity>
 	</application>
 
 </manifest>

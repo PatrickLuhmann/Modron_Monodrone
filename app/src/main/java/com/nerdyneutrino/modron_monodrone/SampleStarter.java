@@ -11,7 +11,8 @@ import android.widget.ListView;
 public class SampleStarter extends ListActivity {
 	String samples[] = {
 		"Button Response",
-		"Sample 2"
+		"Drawing",
+		"Sample Of Unknown Origin"
 	};
 
 	@Override
@@ -25,10 +26,15 @@ public class SampleStarter extends ListActivity {
 		super.onListItemClick(list, view, position, id);
 
 		// TODO: There is probably a more elegant or "Android" way of doing this.
+		Intent intent;
 		switch (position)
 		{
 			case 0:
-				Intent intent = new Intent(this, ButtonResponse.class);
+				intent = new Intent(this, ButtonResponse.class);
+				startActivity(intent);
+				break;
+			case 1:
+				intent = new Intent(this, Drawing.class);
 				startActivity(intent);
 				break;
 			default:
