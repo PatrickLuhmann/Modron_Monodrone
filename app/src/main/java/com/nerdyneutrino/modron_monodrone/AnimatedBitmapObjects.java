@@ -15,6 +15,61 @@ import android.view.WindowManager;
 import java.io.IOException;
 import java.io.InputStream;
 
+class MyObject{
+	private float pos_x;
+	private float pos_y;
+	private float vel_x;
+	private float vel_y;
+	//private Bitmap skin;
+
+	public static class Builder{
+		private float pos_x;
+		private float pos_y;
+		private float vel_x = 0;
+		private float vel_y = 0;
+		//private Bitmap skin;
+
+		public Builder(float x, float y){
+			this.pos_x = x;
+			this.pos_y = y;
+		}
+
+		public Builder velX(float val){
+			this.vel_x = val;
+			return this;
+		}
+
+		public Builder velY(float val){
+			this.vel_y = val;
+			return this;
+		}
+
+		public MyObject build(){
+			return new MyObject(this);
+		}
+	}
+
+	private MyObject(Builder b){
+		pos_x = b.pos_x;
+		pos_y = b.pos_y;
+		vel_x = b.vel_x;
+		vel_y = b.vel_y;
+	}
+
+	void UpdatePosition(float deltaT){
+		pos_x = pos_x + vel_x * deltaT;
+		if (pos_x > 500)
+			pos_x = 0;
+		pos_y = pos_y + vel_y * deltaT;
+		if (pos_y > 1000)
+			pos_y = 0;
+	}
+
+	void Draw(Canvas canvas, Bitmap me){
+		canvas.drawBitmap(me, pos_x, pos_y, null);
+	}
+}
+
 public class AnimatedBitmapObjects extends Activity {
 	ThreadedRenderView rview;
 
@@ -38,39 +93,15 @@ public class AnimatedBitmapObjects extends Activity {
 		rview.pause();
 	}
 
-	class BobObj {
-		int velocity = 0;
-		float pos_x = 0, pos_y = 100;
-
-		BobObj(int v){
-			velocity = v;
-		}
-
-		BobObj(float start_x, float start_y, int v){
-			pos_x = start_x;
-			pos_y = start_y;
-			velocity = v;
-		}
-
-		void UpdatePosition(float deltaT){
-			pos_x = pos_x + velocity * deltaT;
-			if (pos_x > 500)
-				pos_x = 0;
-		}
-
-		void Draw(Canvas canvas, Bitmap me){
-			canvas.drawBitmap(me, pos_x, pos_y, null);
-		}
-	}
-
 	class ThreadedRenderView extends SurfaceView implements Runnable {
 		Thread renderThread = null;
 		SurfaceHolder holder;
 		volatile boolean running = false;
 		volatile int tick = 0;
-		int v = 100; // px per second
+		float v = 100; // px per second
 		Bitmap bob1;
-		BobObj bob_obj, bob_obj2;
+		MyObject bob_obj;
+		MyObject bob_obj2;
 
 		public ThreadedRenderView(Context context) {
 			super(context);
@@ -91,8 +122,8 @@ public class AnimatedBitmapObjects extends Activity {
 				// Close input streams, I guess.
 			}
 
-			bob_obj = new BobObj(v);
-			bob_obj2 = new BobObj(1, 1, 50);
+			bob_obj = new MyObject.Builder(0, 0).velX(v).velY(0).build();
+			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).build();
 		}
 
 		public void resume() {
