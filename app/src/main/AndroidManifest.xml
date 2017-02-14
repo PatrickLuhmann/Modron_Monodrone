@@ -35,6 +35,8 @@
 		</activity>
 		<activity android:name=".MyBitmap">
 		</activity>
+		<activity android:name=".AnimatedBitmapObjects">
+		</activity>
 	</application>
 
 </manifest>

@@ -13,6 +13,7 @@ public class SampleStarter extends ListActivity {
 		"Button Response",
 		"Drawing",
 		"Bitmap",
+		"Animated Bitmap Objects",
 		"Sample Of Unknown Origin"
 	};
 
@@ -44,6 +45,10 @@ public class SampleStarter extends ListActivity {
 				break;
 			case 2:
 				intent = new Intent(this, MyBitmap.class);
+				startActivity(intent);
+				break;
+			case 3:
+				intent = new Intent(this, AnimatedBitmapObjects.class);
 				startActivity(intent);
 				break;
 			default:
