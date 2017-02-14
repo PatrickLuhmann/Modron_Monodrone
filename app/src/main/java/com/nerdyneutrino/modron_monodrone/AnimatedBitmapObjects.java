@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -15,31 +16,34 @@ import android.view.WindowManager;
 import java.io.IOException;
 import java.io.InputStream;
 
-class MyObject{
+class MyObject {
 	private float pos_x;
 	private float pos_y;
 	private float vel_x;
 	private float vel_y;
 	private Bitmap skin;
+	private float scale; // same both dirs
+	Rect dst = new Rect();
 
-	public static class Builder{
+	public static class Builder {
 		private float pos_x;
 		private float pos_y;
 		private float vel_x = 0;
 		private float vel_y = 0;
-		private Bitmap skin;
+		private Bitmap skin = null;
+		private float scale = 1.0f;
 
-		public Builder(float x, float y){
+		public Builder(float x, float y) {
 			this.pos_x = x;
 			this.pos_y = y;
 		}
 
-		public Builder velX(float val){
+		public Builder velX(float val) {
 			this.vel_x = val;
 			return this;
 		}
 
-		public Builder velY(float val){
+		public Builder velY(float val) {
 			this.vel_y = val;
 			return this;
 		}
@@ -49,20 +53,26 @@ class MyObject{
 			return this;
 		}
 
-		public MyObject build(){
+		public Builder scale(float val) {
+			this.scale = val;
+			return this;
+		}
+
+		public MyObject build() {
 			return new MyObject(this);
 		}
 	}
 
-	private MyObject(Builder b){
+	private MyObject(Builder b) {
 		pos_x = b.pos_x;
 		pos_y = b.pos_y;
 		vel_x = b.vel_x;
 		vel_y = b.vel_y;
 		skin = b.skin;
+		scale = b.scale;
 	}
 
-	void UpdatePosition(float deltaT){
+	void UpdatePosition(float deltaT) {
 		pos_x = pos_x + vel_x * deltaT;
 		if (pos_x > 500)
 			pos_x = 0;
@@ -71,8 +81,15 @@ class MyObject{
 			pos_y = 0;
 	}
 
-	void Draw(Canvas canvas){
-		canvas.drawBitmap(skin, pos_x, pos_y, null);
+	void Draw(Canvas canvas) {
+		if (skin != null) {
+			// Calculate destination rectangle
+			int width = (int) (skin.getWidth() * scale);
+			int height = (int) (skin.getHeight() * scale);
+			dst.set((int) pos_x, (int) pos_y, (int) pos_x + width, (int) pos_y + height);
+
+			canvas.drawBitmap(skin, null, dst, null);
+		}
 	}
 }
 
@@ -128,8 +145,8 @@ public class AnimatedBitmapObjects extends Activity {
 				// Close input streams, I guess.
 			}
 
-			bob_obj = new MyObject.Builder(0, 0).velX(v).velY(0).skin(bob1).build();
-			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).skin(bob1).build();
+			bob_obj = new MyObject.Builder(0, 0).velX(v).velY(0).skin(bob1).scale(0.5f).build();
+			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).skin(bob1).scale(1.0f).build();
 		}
 
 		public void resume() {
@@ -140,7 +157,7 @@ public class AnimatedBitmapObjects extends Activity {
 
 		public void pause() {
 			running = false;
-			while(true) {
+			while (true) {
 				try {
 					renderThread.join();
 					return;
@@ -171,8 +188,8 @@ public class AnimatedBitmapObjects extends Activity {
 				canvas.drawRGB(0, 0, 0);
 
 				// Display the bitmaps
-				bob_obj.Draw(canvas, bob1);
-				bob_obj2.Draw(canvas, bob1);
+				bob_obj.Draw(canvas);
+				bob_obj2.Draw(canvas);
 
 				holder.unlockCanvasAndPost(canvas);
 
