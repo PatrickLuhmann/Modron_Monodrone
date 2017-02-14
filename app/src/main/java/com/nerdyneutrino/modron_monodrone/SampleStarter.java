@@ -12,6 +12,7 @@ public class SampleStarter extends ListActivity {
 	String samples[] = {
 		"Button Response",
 		"Drawing",
+		"Bitmap",
 		"Sample Of Unknown Origin"
 	};
 
@@ -26,6 +27,10 @@ public class SampleStarter extends ListActivity {
 		super.onListItemClick(list, view, position, id);
 
 		// TODO: There is probably a more elegant or "Android" way of doing this.
+		// The game book extracts the text of the string at the position and uses
+		// it to create the class name, which means that there is no need for manual
+		// addition of cases. That seems too clever for me so I will do it the old-
+		// fashioned way for now.
 		Intent intent;
 		switch (position)
 		{
@@ -35,6 +40,10 @@ public class SampleStarter extends ListActivity {
 				break;
 			case 1:
 				intent = new Intent(this, Drawing.class);
+				startActivity(intent);
+				break;
+			case 2:
+				intent = new Intent(this, MyBitmap.class);
 				startActivity(intent);
 				break;
 			default:

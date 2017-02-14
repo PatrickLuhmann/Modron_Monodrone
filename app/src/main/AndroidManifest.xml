@@ -33,6 +33,8 @@
 		</activity>
 		<activity android:name=".Drawing">
 		</activity>
+		<activity android:name=".MyBitmap">
+		</activity>
 	</application>
 
 </manifest>
