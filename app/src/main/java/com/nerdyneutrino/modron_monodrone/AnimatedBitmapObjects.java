@@ -20,14 +20,14 @@ class MyObject{
 	private float pos_y;
 	private float vel_x;
 	private float vel_y;
-	//private Bitmap skin;
+	private Bitmap skin;
 
 	public static class Builder{
 		private float pos_x;
 		private float pos_y;
 		private float vel_x = 0;
 		private float vel_y = 0;
-		//private Bitmap skin;
+		private Bitmap skin;
 
 		public Builder(float x, float y){
 			this.pos_x = x;
@@ -44,6 +44,11 @@ class MyObject{
 			return this;
 		}
 
+		public Builder skin(Bitmap val) {
+			this.skin = val;
+			return this;
+		}
+
 		public MyObject build(){
 			return new MyObject(this);
 		}
@@ -54,6 +59,7 @@ class MyObject{
 		pos_y = b.pos_y;
 		vel_x = b.vel_x;
 		vel_y = b.vel_y;
+		skin = b.skin;
 	}
 
 	void UpdatePosition(float deltaT){
@@ -65,8 +71,8 @@ class MyObject{
 			pos_y = 0;
 	}
 
-	void Draw(Canvas canvas, Bitmap me){
-		canvas.drawBitmap(me, pos_x, pos_y, null);
+	void Draw(Canvas canvas){
+		canvas.drawBitmap(skin, pos_x, pos_y, null);
 	}
 }
 
@@ -122,8 +128,8 @@ public class AnimatedBitmapObjects extends Activity {
 				// Close input streams, I guess.
 			}
 
-			bob_obj = new MyObject.Builder(0, 0).velX(v).velY(0).build();
-			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).build();
+			bob_obj = new MyObject.Builder(0, 0).velX(v).velY(0).skin(bob1).build();
+			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).skin(bob1).build();
 		}
 
 		public void resume() {
