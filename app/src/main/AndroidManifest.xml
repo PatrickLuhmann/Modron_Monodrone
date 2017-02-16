@@ -37,6 +37,10 @@
 		</activity>
 		<activity android:name=".AnimatedBitmapObjects">
 		</activity>
+		<activity android:name=".Rectangles"
+			android:screenOrientation="reverseLandscape"
+			android:configChanges="keyboardHidden|orientation">
+		</activity>
 	</application>
 
 </manifest>

@@ -14,6 +14,7 @@ public class SampleStarter extends ListActivity {
 		"Drawing",
 		"Bitmap",
 		"Animated Bitmap Objects",
+		"Rectangles",
 		"Sample Of Unknown Origin"
 	};
 
@@ -49,6 +50,10 @@ public class SampleStarter extends ListActivity {
 				break;
 			case 3:
 				intent = new Intent(this, AnimatedBitmapObjects.class);
+				startActivity(intent);
+				break;
+			case 4:
+				intent = new Intent(this, Rectangles.class);
 				startActivity(intent);
 				break;
 			default:
