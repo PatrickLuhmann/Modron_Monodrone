@@ -143,9 +143,10 @@ public class AnimatedBitmapObjects extends Activity {
 		SurfaceHolder holder;
 		volatile boolean running = false;
 		volatile int tick = 0;
-		Bitmap bob1;
+		Bitmap bob1, bmBlueQueen;
 		MyObject bob_obj;
 		MyObject bob_obj2;
+		MyObject blue_queen;
 
 		public ThreadedRenderView(Context context) {
 			super(context);
@@ -159,6 +160,10 @@ public class AnimatedBitmapObjects extends Activity {
 				bob1 = BitmapFactory.decodeStream(is);
 				is.close();
 				MyDebug.Print("AnimatedBitmapObjects", "bobargb8888.png format: " + bob1.getConfig());
+				is = am.open("sample_blue_queen.png");
+				bmBlueQueen = BitmapFactory.decodeStream(is);
+				is.close();
+				MyDebug.Print("AnimatedBitmapObjects", "sample_blue_queen.png format: " + bmBlueQueen.getConfig());
 			} catch (IOException e) {
 				// I don't know what to do here.
 				MyDebug.Print("AnimatedBitmapObjects", "Caught an exception while trying to load my bitmap file.");
@@ -168,6 +173,7 @@ public class AnimatedBitmapObjects extends Activity {
 
 			bob_obj = new MyObject.Builder(0, 0).velX(100).velY(150).skin(bob1).scale(0.5f).build();
 			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).skin(bob1).scale(1.0f).build();
+			blue_queen = new MyObject.Builder(0, 100).velX(5).velY(1).skin(bmBlueQueen).scale(0.25f).build();
 		}
 
 		public void resume() {
@@ -221,6 +227,14 @@ public class AnimatedBitmapObjects extends Activity {
 					bob_obj2.setY(0);
 				}
 
+				blue_queen.UpdatePosition(deltaT);
+				if (blue_queen.pastX(holder.getSurfaceFrame().width())){
+					blue_queen.setX(0);
+				}
+				if (blue_queen.pastY(holder.getSurfaceFrame().height())){
+					blue_queen.setY(0);
+				}
+
 				Canvas canvas = holder.lockCanvas();
 
 				// Paint it black
@@ -234,6 +248,7 @@ public class AnimatedBitmapObjects extends Activity {
 				// Display the bitmaps
 				bob_obj.Draw(canvas);
 				bob_obj2.Draw(canvas);
+				blue_queen.Draw(canvas);
 
 				holder.unlockCanvasAndPost(canvas);
 
