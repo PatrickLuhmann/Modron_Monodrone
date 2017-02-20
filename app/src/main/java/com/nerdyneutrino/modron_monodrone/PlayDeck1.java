@@ -36,6 +36,15 @@ public class PlayDeck1 extends Activity {
 
 	Bitmap bmBlueQueen;
 
+
+	// Create the draw pile
+	MyObject drawPile;
+
+	// Create the up cards
+	MyObject upCard1;
+	MyObject upCard2;
+	MyObject upCard3;
+
 	class pd1RenderView extends View {
 		public pd1RenderView(Context context) {
 			super(context);
@@ -55,18 +64,18 @@ public class PlayDeck1 extends Activity {
 			} finally {
 				// Close input streams, I guess.
 			}
+
+			// Create the draw pile
+			drawPile = new MyObject.Builder(193, 270).posX(640).posY(100).skin(bmBlueQueen).build();
+
+			// Create the up cards
+			upCard1 = new MyObject.Builder(193, 270).posX(940).posY(100).skin(bmBlueQueen).build();
+			upCard2 = new MyObject.Builder(193, 270).posX(1240).posY(100).skin(bmBlueQueen).build();
+			upCard3 = new MyObject.Builder(193, 270).posX(1540).posY(100).skin(bmBlueQueen).build();
 		}
 
 		protected void onDraw(Canvas canvas) {
 			canvas.drawRGB(0, 200, 0);
-
-			// Create the draw pile
-			MyObject drawPile = new MyObject.Builder(640, 100).skin(bmBlueQueen).scale(0.25f).build();
-
-			// Create the up cards
-			MyObject upCard1 = new MyObject.Builder(940, 100).skin(bmBlueQueen).scale(0.25f).build();
-			MyObject upCard2 = new MyObject.Builder(1240, 100).skin(bmBlueQueen).scale(0.25f).build();
-			MyObject upCard3 = new MyObject.Builder(1540, 100).skin(bmBlueQueen).scale(0.25f).build();
 
 			// Draw the objects
 			drawPile.Draw(canvas);

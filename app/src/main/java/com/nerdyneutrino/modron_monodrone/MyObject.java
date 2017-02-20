@@ -5,27 +5,38 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 public class MyObject {
+	private int width;
+	private int height;
 	private float pos_x;
 	private float pos_y;
 	private float vel_x;
 	private float vel_y;
 	private Bitmap skin;
-	private float scale; // same both dirs
-	Rect dst = new Rect();
-	int width;
-	int height;
+	private Rect dst = new Rect();
 
 	public static class Builder {
-		private float pos_x;
-		private float pos_y;
+		private int width;
+		private int height;
+		private float pos_x = 0;
+		private float pos_y = 0;
 		private float vel_x = 0;
 		private float vel_y = 0;
 		private Bitmap skin = null;
-		private float scale = 1.0f;
 
-		public Builder(float x, float y) {
-			this.pos_x = x;
-			this.pos_y = y;
+		public Builder(int w, int h) {
+			// Width and Height must be non-negative
+			this.width = Math.abs(w);
+			this.height = Math.abs(h);
+		}
+
+		public Builder posX(float val) {
+			this.pos_x = val;
+			return this;
+		}
+
+		public Builder posY(float val) {
+			this.pos_y = val;
+			return this;
 		}
 
 		public Builder velX(float val) {
@@ -43,23 +54,19 @@ public class MyObject {
 			return this;
 		}
 
-		public Builder scale(float val) {
-			this.scale = val;
-			return this;
-		}
-
 		public MyObject build() {
 			return new MyObject(this);
 		}
 	}
 
 	private MyObject(Builder b) {
+		width = b.width;
+		height = b.height;
 		pos_x = b.pos_x;
 		pos_y = b.pos_y;
 		vel_x = b.vel_x;
 		vel_y = b.vel_y;
 		skin = b.skin;
-		scale = b.scale;
 	}
 
 	void UpdatePosition(float deltaT) {
@@ -69,11 +76,7 @@ public class MyObject {
 
 	void Draw(Canvas canvas) {
 		if (skin != null) {
-			// Calculate destination rectangle
-			width = (int) (skin.getWidth() * scale);
-			height = (int) (skin.getHeight() * scale);
-			dst.set((int) pos_x, (int) pos_y, (int) pos_x + width, (int) pos_y + height);
-
+			dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 			canvas.drawBitmap(skin, null, dst, null);
 		}
 	}

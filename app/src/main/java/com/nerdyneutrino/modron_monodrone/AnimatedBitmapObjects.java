@@ -75,9 +75,9 @@ public class AnimatedBitmapObjects extends Activity {
 				// Close input streams, I guess.
 			}
 
-			bob_obj = new MyObject.Builder(0, 0).velX(100).velY(150).skin(bob1).scale(0.5f).build();
-			bob_obj2 = new MyObject.Builder(40, 40).velX(20).velY(20).skin(bob1).scale(1.0f).build();
-			blue_queen = new MyObject.Builder(0, 100).velX(5).velY(1).skin(bmBlueQueen).scale(0.25f).build();
+			bob_obj = new MyObject.Builder(80, 92).posX(0).posY(0).velX(100).velY(150).skin(bob1).build();
+			bob_obj2 = new MyObject.Builder(160, 183).posX(40).posY(40).velX(20).velY(20).skin(bob1).build();
+			blue_queen = new MyObject.Builder(193, 270).posX(0).posY(100).velX(5).velY(1).skin(bmBlueQueen).build();
 		}
 
 		public void resume() {
