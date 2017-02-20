@@ -37,9 +37,15 @@
 		</activity>
 		<activity android:name=".AnimatedBitmapObjects">
 		</activity>
-		<activity android:name=".Rectangles"
-			android:screenOrientation="reverseLandscape"
-			android:configChanges="keyboardHidden|orientation">
+		<activity
+			android:name=".Rectangles"
+			android:configChanges="keyboardHidden|orientation"
+			android:screenOrientation="reverseLandscape">
+		</activity>
+		<activity
+			android:name=".PlayDeck1"
+			android:configChanges="keyboardHidden|orientation"
+			android:screenOrientation="reverseLandscape">
 		</activity>
 	</application>
 
