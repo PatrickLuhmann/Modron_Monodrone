@@ -2,6 +2,8 @@ package com.nerdyneutrino.modron_monodrone;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 public class MyObject {
@@ -13,6 +15,7 @@ public class MyObject {
 	private float vel_y;
 	private Bitmap skin;
 	private Rect dst = new Rect();
+	private boolean selected = false;
 
 	public static class Builder {
 		private int width;
@@ -64,6 +67,7 @@ public class MyObject {
 		height = b.height;
 		pos_x = b.pos_x;
 		pos_y = b.pos_y;
+		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 		vel_x = b.vel_x;
 		vel_y = b.vel_y;
 		skin = b.skin;
@@ -72,21 +76,47 @@ public class MyObject {
 	void UpdatePosition(float deltaT) {
 		pos_x = pos_x + vel_x * deltaT;
 		pos_y = pos_y + vel_y * deltaT;
+		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 	}
 
 	void Draw(Canvas canvas) {
 		if (skin != null) {
-			dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
+			if (selected) {
+				Rect border = new Rect(dst);
+				border.inset(-5, -5);
+				Paint myRed = new Paint();
+				myRed.setColor(Color.RED);
+				myRed.setStyle(Paint.Style.FILL_AND_STROKE);
+				canvas.drawRect(border, myRed);
+			}
 			canvas.drawBitmap(skin, null, dst, null);
 		}
 	}
 
 	void setX(int val) {
 		pos_x = val;
+		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 	}
 
 	void setY(int val) {
 		pos_y = val;
+		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
+	}
+
+	void setSelected() {
+		MyDebug.Print(this.getClass().getSimpleName(), "setSelected()");
+		selected = true;
+	}
+
+	void setUnselected() {
+		MyDebug.Print(this.getClass().getSimpleName(), "setUnselected()");
+		selected = false;
+	}
+
+	boolean contains(float x, float y) {
+		if (dst.contains((int)x, (int)y))
+			return true;
+		return false;
 	}
 
 	boolean pastX(int val) {
