@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -115,7 +114,7 @@ public class AnimatedBitmapObjects extends Activity {
 				MyDebug.Print("AnimatedBitmapObjects", "Surface height: " + holder.getSurfaceFrame().height());
 
 				// Determine the new positions
-				bob_obj.UpdatePosition(deltaT);
+				bob_obj.updatePosition(deltaT);
 				if (bob_obj.pastX(holder.getSurfaceFrame().width())){
 					bob_obj.setX(0);
 				}
@@ -123,7 +122,7 @@ public class AnimatedBitmapObjects extends Activity {
 					bob_obj.setY(0);
 				}
 
-				bob_obj2.UpdatePosition(deltaT);
+				bob_obj2.updatePosition(deltaT);
 				if (bob_obj2.pastX(holder.getSurfaceFrame().width())){
 					bob_obj2.setX(0);
 				}
@@ -131,7 +130,7 @@ public class AnimatedBitmapObjects extends Activity {
 					bob_obj2.setY(0);
 				}
 
-				blue_queen.UpdatePosition(deltaT);
+				blue_queen.updatePosition(deltaT);
 				if (blue_queen.pastX(holder.getSurfaceFrame().width())){
 					blue_queen.setX(0);
 				}

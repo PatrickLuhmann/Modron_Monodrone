@@ -37,6 +37,7 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 	 */
 
 	pd1RenderView rview;
+	float prevX, prevY;
 	Bitmap bmBlueQueen;
 
 
@@ -121,9 +122,30 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 						obj.setSelected();
 				}
 
+				// Remember the location in case this becomes a move
+				prevX = pointX;
+				prevY = pointY;
+
 				break;
 			case MotionEvent.ACTION_MOVE:
 				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_MOVE @ " + pointX + " , " + pointY);
+
+				// If an object is selected, update its position. At this point, only
+				// one object may be selected at a time so we can break out of the loop
+				// early.
+				for (MyObject obj : objects) {
+					if (obj.isSelected()) {
+						float deltaX = pointX - prevX;
+						float deltaY = pointY - prevY;
+						obj.updatePosition(deltaX, deltaY);
+						break;
+					}
+				}
+
+				// Remember the location in case this move continues
+				prevX = pointX;
+				prevY = pointY;
+
 				break;
 			case MotionEvent.ACTION_CANCEL:
 				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_CANCEL @ " + pointX + " , " + pointY);

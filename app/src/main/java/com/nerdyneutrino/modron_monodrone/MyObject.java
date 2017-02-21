@@ -73,9 +73,15 @@ public class MyObject {
 		skin = b.skin;
 	}
 
-	void UpdatePosition(float deltaT) {
+	void updatePosition(float deltaT) {
 		pos_x = pos_x + vel_x * deltaT;
 		pos_y = pos_y + vel_y * deltaT;
+		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
+	}
+
+	void updatePosition(float deltaX, float deltaY) {
+		pos_x += deltaX;
+		pos_y += deltaY;
 		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 	}
 
@@ -111,6 +117,10 @@ public class MyObject {
 	void setUnselected() {
 		MyDebug.Print(this.getClass().getSimpleName(), "setUnselected()");
 		selected = false;
+	}
+
+	boolean isSelected() {
+		return selected;
 	}
 
 	boolean contains(float x, float y) {
