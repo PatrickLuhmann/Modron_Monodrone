@@ -14,6 +14,7 @@ import android.view.WindowManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class PlayDeck1 extends Activity implements View.OnTouchListener {
 
@@ -47,6 +48,8 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 	MyObject upCard2;
 	MyObject upCard3;
 
+	ArrayList<MyObject> objects = new ArrayList<MyObject>();
+
 	class pd1RenderView extends View {
 		public pd1RenderView(Context context) {
 			super(context);
@@ -69,21 +72,24 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 
 			// Create the draw pile
 			drawPile = new MyObject.Builder(193, 270).posX(640).posY(100).skin(bmBlueQueen).build();
+			objects.add(drawPile);
 
 			// Create the up cards
 			upCard1 = new MyObject.Builder(193, 270).posX(940).posY(100).skin(bmBlueQueen).build();
 			upCard2 = new MyObject.Builder(193, 270).posX(1240).posY(100).skin(bmBlueQueen).build();
 			upCard3 = new MyObject.Builder(193, 270).posX(1540).posY(100).skin(bmBlueQueen).build();
+			objects.add(upCard1);
+			objects.add(upCard2);
+			objects.add(upCard3);
 		}
 
 		protected void onDraw(Canvas canvas) {
 			canvas.drawRGB(0, 200, 0);
 
 			// Draw the objects
-			drawPile.Draw(canvas);
-			upCard1.Draw(canvas);
-			upCard2.Draw(canvas);
-			upCard3.Draw(canvas);
+			for (MyObject obj : objects) {
+				obj.Draw(canvas);
+			}
 
 			// Only need invalidate() if we are trying to animate?
 			//invalidate();
@@ -110,8 +116,10 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_DOWN @ " + pointX + " , " + pointY);
 
 				// If an object is selected, tell it so.
-				if (drawPile.contains(pointX, pointY))
-					drawPile.setSelected();
+				for (MyObject obj : objects) {
+					if (obj.contains(pointX, pointY))
+						obj.setSelected();
+				}
 
 				break;
 			case MotionEvent.ACTION_MOVE:
@@ -124,7 +132,9 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_UP @ " + pointX + " , " + pointY);
 
 				// Unselect all objects
-				drawPile.setUnselected();
+				for (MyObject obj : objects) {
+					obj.setUnselected();
+				}
 
 				break;
 			default:
