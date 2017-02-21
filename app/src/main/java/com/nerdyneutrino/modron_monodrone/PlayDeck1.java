@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,7 +15,7 @@ import android.view.WindowManager;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PlayDeck1 extends Activity {
+public class PlayDeck1 extends Activity implements View.OnTouchListener {
 
 	/*
 	  Plan is to eventually have a deck of cards, several up cards, a discard
@@ -34,6 +35,7 @@ public class PlayDeck1 extends Activity {
 	  direction to rotate the hand, like a carousel.
 	 */
 
+	pd1RenderView rview;
 	Bitmap bmBlueQueen;
 
 
@@ -87,12 +89,52 @@ public class PlayDeck1 extends Activity {
 			//invalidate();
 		}
 	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 			WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(new pd1RenderView(this));
+		rview = new pd1RenderView(this);
+		rview.setOnTouchListener(this);
+		setContentView(rview);
+	}
+
+	public boolean onTouch(View v, MotionEvent me) {
+		float pointX = me.getX();
+		float pointY = me.getY();
+		int act = me.getAction();
+		switch (act) {
+			case MotionEvent.ACTION_DOWN:
+				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_DOWN @ " + pointX + " , " + pointY);
+
+				// If an object is selected, tell it so.
+				if (drawPile.contains(pointX, pointY))
+					drawPile.setSelected();
+
+				break;
+			case MotionEvent.ACTION_MOVE:
+				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_MOVE @ " + pointX + " , " + pointY);
+				break;
+			case MotionEvent.ACTION_CANCEL:
+				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_CANCEL @ " + pointX + " , " + pointY);
+				break;
+			case MotionEvent.ACTION_UP:
+				MyDebug.Print(this.getClass().getSimpleName(), "ACTION_UP @ " + pointX + " , " + pointY);
+
+				// Unselect all objects
+				drawPile.setUnselected();
+
+				break;
+			default:
+				MyDebug.Print(this.getClass().getSimpleName(), "Unhandled action " + act);
+				break;
+		}
+
+		// Trigger redraw of view
+		rview.invalidate();
+
+		return true;
 	}
 }
