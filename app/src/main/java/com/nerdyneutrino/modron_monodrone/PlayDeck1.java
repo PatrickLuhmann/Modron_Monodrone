@@ -82,6 +82,18 @@ public class PlayDeck1 extends Activity implements View.OnTouchListener {
 			objects.add(upCard1);
 			objects.add(upCard2);
 			objects.add(upCard3);
+
+			// Create some more cards
+			objects.add(new MyObject.Builder(100, (int)(100 * 1.399f)).posX(0).posY(0).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(150, (int)(150 * 1.399f)).posX(0).posY(200).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(75, (int)(75 * 1.399f)).posX(0).posY(450).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(75, (int)(75 * 1.399f)).posX(100).posY(450).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(75, (int)(75 * 1.399f)).posX(200).posY(450).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(50, (int)(50 * 1.399f)).posX(300).posY(0).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(50, (int)(50 * 1.399f)).posX(300).posY(100).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(50, (int)(50 * 1.399f)).posX(300).posY(200).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(300, (int)(300 * 1.399f)).posX(640).posY(400).skin(bmBlueQueen).build());
+			objects.add(new MyObject.Builder(400, (int)(400 * 1.399f)).posX(1240).posY(400).skin(bmBlueQueen).build());
 		}
 
 		protected void onDraw(Canvas canvas) {
