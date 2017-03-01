@@ -14,7 +14,7 @@ public class SampleStarter extends ListActivity {
 		"Drawing",
 		"Bitmap",
 		"Animated Bitmap Objects",
-		"Rectangles",
+		"Fractal",
 		"Play Deck 1",
 		"Sample Of Unknown Origin"
 	};

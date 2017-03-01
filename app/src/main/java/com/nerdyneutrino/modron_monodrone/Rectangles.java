@@ -80,7 +80,7 @@ public class Rectangles extends Activity implements View.OnTouchListener {
 	static public int compute2(double x0, double y0, int max_i) {
 		double x = 0, y = 0;
 		int i = 0;
-		while (((x * x + y * y) < 4.0f) && i < max_i) {
+		while (((x * x + y * y) < 16.0f) && i < max_i) {
 			double x_temp = x * x - y * y + x0;
 			y = 2 * x * y + y0;
 			x = x_temp;
@@ -89,24 +89,15 @@ public class Rectangles extends Activity implements View.OnTouchListener {
 		return i;
 	}
 
+	// Returns the number of iterations, not a Color.
 	public int compute(int x, int y) {
 		double xv = xvt + x * xstep;
 		double yv = yvt + y * ystep;
-		int max = 64 * 3;
+		int max = 257;
 		int ii = compute2(xv, yv, max);
-		int color;
 		if (ii == max)
-			color = 0;
-		else {
-			int c = ii / 64; // 0, 1, 2
-			int off = ii % 64;
-			color = (off + 192) << (8 * c);
-			ii = ii + 256 - max;
-		}
-		//color = 0xFFFFFF & (ii | (ii << 8) | (ii << 16));
-		color |= 0xFF000000;
-
-		return color;
+			ii = 0;
+		return ii;
 	}
 
 	class ThreadedRenderView extends SurfaceView implements Runnable {
@@ -148,73 +139,91 @@ public class Rectangles extends Activity implements View.OnTouchListener {
 			}
 		}
 
-		public void run() {
-			long lastT = System.nanoTime();
-			while (running) {
-				if (!holder.getSurface().isValid())
-					continue;
+		public void createColorPalette(int[] palette) {
+			int idx = 0;
+			palette[idx++] = 0xFF0000AA;
+			palette[idx++] = 0xFF00AAAA; // cyan?
+			palette[idx++] = 0xFF00AA00;
+			palette[idx++] = 0xFFAAAA00; // yellow?
+			palette[idx++] = 0xFFAA0000;
+			palette[idx++] = 0xFFAA00AA; // magenta?
+			palette[idx++] = 0xFFAAAAAA;
+			palette[idx++] = 0xFF000055;
 
+		}
+
+		public void run() {
+			Paint p = new Paint();
+			int[] colorPalette = new int[8];
+			createColorPalette(colorPalette);
+
+			while (running) {
 				if (complete) {
 					if (redraw) {
 						MyDebug.Print("Rectangles:run", "Redrawing bitmap as it is already complete.");
-						Canvas canvas = holder.lockCanvas();
-						Paint p = new Paint();
+						// For a redraw, use a green border.
 						p.setColor(Color.GREEN);
 						p.setStyle(Paint.Style.FILL_AND_STROKE);
-						canvas.drawRect(0,0,3 + xst + 1 + 2, 3 + yst + 1 + 2, p);
-						canvas.drawBitmap(b, 3, 3, null);
-						holder.unlockCanvasAndPost(canvas);
-						redraw = false;
 					}
-					continue;
 				}
+				else {
+					long lastT = System.nanoTime();
 
-				float deltaT = (System.nanoTime() - lastT) / 1000000000.0f;
-				lastT = System.nanoTime();
-				MyDebug.Print("Rectangles:run", "Delta Time: " + deltaT);
+					// Create the base bitmap
+					b = Bitmap.createBitmap(xst + 1, yst + 1, Bitmap.Config.ARGB_8888);
+					Canvas c = new Canvas(b);
+					c.drawRGB(0, 0, 0);
+					p.setStrokeWidth(0);
 
-				// Create the base bitmap
-				b = Bitmap.createBitmap(xst + 1, yst + 1, Bitmap.Config.ARGB_8888);
-				Canvas c = new Canvas(b);
-				c.drawRGB(0, 0, 0);
+					// Calculate the corners of the view
+					xvt = centerX - rad;
+					yvt = centerY + rad;
+					xvb = centerX + rad;
+					yvb = centerY - rad;
+					xstep = (xvb - xvt) / (xst);
+					ystep = (yvb - yvt) / (yst);
+					MyDebug.Print("Rectangles:run", "This view is (" + xvt + " , " + yvt + ") to (" + xvb + " , " + yvb + ")");
 
-				// Calculate the corners of the view
-				xvt = centerX - rad;
-				yvt = centerY + rad;
-				xvb = centerX + rad;
-				yvb = centerY - rad;
-				xstep = (xvb - xvt) / (xst);
-				ystep = (yvb - yvt) / (yst);
-				MyDebug.Print("Rectangles:run", "This view is (" + xvt + " , " + yvt + ") to (" + xvb + " , " + yvb + ")");
-
-				Paint p = new Paint();
-
-				int x = 0, y = 0;
-				for (y = 0; y <= yst; y++) {
-					if (!running)
-						break;
-					for (x = 0; x <= xst; x++) {
-						if (!running) {
+					int x = 0, y = 0;
+					for (y = 0; y <= yst; y++) {
+						if (!running)
 							break;
+
+						for (x = 0; x <= xst; x++) {
+							if (!running)
+								break;
+
+							int steps = compute(x, y);
+							if (steps == 0)
+								p.setColor(Color.BLACK);
+							else
+								p.setColor(colorPalette[(steps - 1) & (colorPalette.length - 1)]);
+							c.drawPoint(x, y, p);
 						}
-
-						int color = compute(x, y);
-						p.setColor(color);
-						c.drawPoint(x, y, p);
 					}
-				}
-				if (y > yst && x > xst) {
-					complete = true;
-					MyDebug.Print("Rectangles:run", "Image creation is complete.");
+					if (y > yst && x > xst) {
+						complete = true;
+						redraw = true;
+						// For the first draw, use a blue border.
+						p.setColor(Color.BLUE);
+						p.setStyle(Paint.Style.FILL_AND_STROKE);
+						MyDebug.Print("Rectangles:run", "Image creation is complete.");
+					} else {
+						MyDebug.Print("Rectangles:run", "Image creation interrupted.");
+					}
+
+					float deltaT = (System.nanoTime() - lastT) / 1000000000.0f;
+					MyDebug.Print("Rectangles:run", "Fractal draw time: " + deltaT + " s");
 				}
 
-				MyDebug.Print("Rectangles:run", "Done with loops.");
-
-				Canvas canvas = holder.lockCanvas();
-				// Put a border around the bitmap, just to show where it is.
-				canvas.drawRect(0,0,3 + xst + 1 + 2, 3 + yst + 1 + 2, myRed);
-				canvas.drawBitmap(b, 3, 3, null);
-				holder.unlockCanvasAndPost(canvas);
+				if (redraw && holder.getSurface().isValid()) {
+					Canvas canvas = holder.lockCanvas();
+					// Put a border around the bitmap, just to show where it is.
+					canvas.drawRect(0, 0, 3 + xst + 1 + 2, 3 + yst + 1 + 2, p);
+					canvas.drawBitmap(b, 3, 3, null);
+					holder.unlockCanvasAndPost(canvas);
+					redraw = false;
+				}
 			}
 		}
 	}
