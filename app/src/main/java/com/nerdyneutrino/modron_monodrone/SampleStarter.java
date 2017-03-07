@@ -16,6 +16,7 @@ public class SampleStarter extends ListActivity {
 		"Animated Bitmap Objects",
 		"Fractal",
 		"Play Deck 1",
+		"Swipe",
 		"Sample Of Unknown Origin"
 	};
 
@@ -59,6 +60,10 @@ public class SampleStarter extends ListActivity {
 				break;
 			case 5:
 				intent = new Intent(this, PlayDeck1.class);
+				startActivity(intent);
+				break;
+			case 6:
+				intent = new Intent(this, Swipe.class);
 				startActivity(intent);
 				break;
 			default:
