@@ -2,25 +2,30 @@ package com.nerdyneutrino.modron_monodrone;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class Swipe extends Activity {
 	private final String dbgTag = this.getClass().getSimpleName();
 
 	SwipeRenderView rview;
+	Context myContext;
 	private int displayWidth, displayHeight;
 	private GestureDetectorCompat mDetector;
 	float prevX, prevY;
@@ -28,6 +33,7 @@ public class Swipe extends Activity {
 	Paint handDisplayPaint;
 	int[] handDisplayColors = new int[] {Color.GRAY, Color.CYAN, Color.RED, Color.WHITE};
 	int handDisplayColorIdx = 0;
+	int handDisplayFirstHandIdx = 0;
 
 	ArrayList<MyObject> objects = new ArrayList<MyObject>();
 
@@ -74,7 +80,20 @@ public class Swipe extends Activity {
 	class SwipeRenderView extends View {
 		public SwipeRenderView(Context context) {
 			super(context);
+			myContext = context;
 
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("sample_blue_queen.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("sample_blue_queen.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("sample_blue_queen.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("sample_blue_queen.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("sample_blue_queen.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("sample_blue_queen.png")).build());
+			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
 		}
 
 		protected void onDraw(Canvas canvas) {
@@ -82,14 +101,32 @@ public class Swipe extends Activity {
 			MyDebug.Print(dbgTag, "Canvas height: " + canvas.getHeight());
 			MyDebug.Print(dbgTag, "Display width: " + displayWidth);
 			MyDebug.Print(dbgTag, "Display height: " + displayHeight);
+
+			// Draw the background sections
 			canvas.drawRGB(0, 200, 0);
 			handDisplayPaint.setColor(handDisplayColors[handDisplayColorIdx]);
 			canvas.drawRect(handDisplayArea, handDisplayPaint);
 
-			// Draw the objects
-			for (MyObject obj : objects) {
-				obj.Draw(canvas);
+			// Draw the cards of the hand that are currently visible.
+			int handDisplayHandWidth = displayWidth / (10 + 193 + 10);
+			MyDebug.Print(dbgTag, "Display hand width: " + handDisplayHandWidth);
+			for (int i = 0; i < handDisplayHandWidth; i++) {
+				int idx = handDisplayFirstHandIdx + i;
+				if (idx < objects.size()) {
+					int posX = i * (10 + 193 + 10) + 10;
+					int posY = displayHeight * 75 / 100 + 20;
+					MyObject obj = objects.get(idx);
+					obj.setX(posX);
+					obj.setY(posY);
+					obj.Draw(canvas);
+//					objects.get(i).Draw(canvas);
+				}
 			}
+
+			// Draw the objects
+//			for (MyObject obj : objects) {
+//				obj.Draw(canvas);
+//			}
 
 			// Only need invalidate() if we are trying to animate?
 			//invalidate();
@@ -129,6 +166,11 @@ public class Swipe extends Activity {
 				handDisplayColorIdx++;
 				if (handDisplayColorIdx >= handDisplayColors.length)
 					handDisplayColorIdx = 0;
+
+				handDisplayFirstHandIdx--;
+				if (handDisplayFirstHandIdx < 0)
+					handDisplayFirstHandIdx = 0;
+
 				rview.invalidate();
 			}
 			else if (deltaX < -250 && Math.abs(deltaY) < 120) {
@@ -136,6 +178,11 @@ public class Swipe extends Activity {
 				handDisplayColorIdx--;
 				if (handDisplayColorIdx < 0)
 					handDisplayColorIdx = handDisplayColors.length - 1;
+
+				handDisplayFirstHandIdx++;
+				if (handDisplayFirstHandIdx >= objects.size())
+					handDisplayFirstHandIdx = objects.size() - 1;
+
 				rview.invalidate();
 			}
 
@@ -156,69 +203,23 @@ public class Swipe extends Activity {
 		// onSingleTapConfirmed
 	}
 
-	public boolean onTouchxxx(View v, MotionEvent event) {
-		float pointX = event.getX();
-		float pointY = event.getY();
-		int act = MotionEventCompat.getActionMasked(event);
-		switch (act) {
-			case MotionEvent.ACTION_DOWN:
-				MyDebug.Print(dbgTag, "ACTION_DOWN @ " + pointX + " , " + pointY);
-
-				// If an object is selected, tell it so.
-				for (MyObject obj : objects) {
-					if (obj.contains(pointX, pointY))
-						obj.setSelected();
-				}
-
-				// Remember the location in case this becomes a move
-				prevX = pointX;
-				prevY = pointY;
-
-				break;
-			case MotionEvent.ACTION_MOVE:
-				MyDebug.Print(dbgTag, "ACTION_MOVE @ " + pointX + " , " + pointY);
-
-				// If an object is selected, update its position. At this point, only
-				// one object may be selected at a time so we can break out of the loop
-				// early.
-				for (MyObject obj : objects) {
-					if (obj.isSelected()) {
-						float deltaX = pointX - prevX;
-						float deltaY = pointY - prevY;
-						obj.updatePosition(deltaX, deltaY);
-						break;
-					}
-				}
-
-				// Remember the location in case this move continues
-				prevX = pointX;
-				prevY = pointY;
-
-				break;
-			case MotionEvent.ACTION_CANCEL:
-				MyDebug.Print(dbgTag, "ACTION_CANCEL @ " + pointX + " , " + pointY);
-				break;
-			case MotionEvent.ACTION_OUTSIDE:
-				MyDebug.Print(dbgTag, "ACTION_OUTSIDE @ " + pointX + " , " + pointY);
-				break;
-			case MotionEvent.ACTION_UP:
-				MyDebug.Print(dbgTag, "ACTION_UP @ " + pointX + " , " + pointY);
-
-				// Unselect all objects
-				for (MyObject obj : objects) {
-					obj.setUnselected();
-				}
-
-				break;
-			default:
-				MyDebug.Print(dbgTag, "Unhandled action " + act);
-				// return super.onTouchEvent(event); // what does this do?
-				break;
+	// Load a bitmap from a file.
+	private Bitmap LoadBitmap(String filename) {
+		Bitmap bitmap = null;
+		// Grab a bitmap file
+		try {
+			AssetManager am = myContext.getAssets();
+			InputStream is = am.open(filename);
+			bitmap = BitmapFactory.decodeStream(is);
+			is.close();
+			MyDebug.Print(dbgTag, filename + " format: " + bitmap.getConfig());
+		} catch (IOException e) {
+			// I don't know what to do here.
+			MyDebug.Print(dbgTag, "Caught an exception while trying to load bitmap file " + filename + ".");
+		} finally {
+			// Close input streams, I guess.
 		}
 
-		// Trigger redraw of view
-		rview.invalidate();
-
-		return true;
+		return bitmap;
 	}
 }
