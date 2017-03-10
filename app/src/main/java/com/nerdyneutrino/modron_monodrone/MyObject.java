@@ -142,5 +142,42 @@ public class MyObject {
 		else
 			return false;
 	}
+
+	public void scaleWidth(float factor) {
+		width *= factor;
+	}
+
+	public void scaleHeight(float factor) {
+		height *= factor;
+	}
+
+	public void scale(float factor) {
+		scaleWidth(factor);
+		scaleHeight(factor);
+	}
+
+	public void setWidth(int w, boolean scale) {
+		if (scale) {
+			float factor = (float)w / (float)width;
+			height *= factor;
+		}
+		width = w;
+	}
+
+	public void setHeight(int h, boolean scale) {
+		if (scale) {
+			float factor = (float)h / (float)height;
+			width *= factor;
+		}
+		height = h;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public int getWidth() {
+		return width;
+	}
 }
 

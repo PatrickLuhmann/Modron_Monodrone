@@ -117,17 +117,21 @@ public class AnimatedBitmapObjects extends Activity {
 				bob_obj.updatePosition(deltaT);
 				if (bob_obj.pastX(holder.getSurfaceFrame().width())){
 					bob_obj.setX(0);
+					bob_obj.scale(2.0f);
 				}
 				if (bob_obj.pastY(holder.getSurfaceFrame().height())){
 					bob_obj.setY(0);
+					bob_obj.scale(0.5f);
 				}
 
 				bob_obj2.updatePosition(deltaT);
 				if (bob_obj2.pastX(holder.getSurfaceFrame().width())){
 					bob_obj2.setX(0);
+					bob_obj2.scale(0.5f);
 				}
 				if (bob_obj2.pastY(holder.getSurfaceFrame().height())){
 					bob_obj2.setY(0);
+					bob_obj2.scale(2.0f);
 				}
 
 				blue_queen.updatePosition(deltaT);

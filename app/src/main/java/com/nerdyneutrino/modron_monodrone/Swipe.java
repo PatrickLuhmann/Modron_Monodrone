@@ -96,6 +96,44 @@ public class Swipe extends Activity {
 			objects.add(new MyObject.Builder(193, 270).skin(LoadBitmap("bobargb8888.png")).build());
 		}
 
+		private void drawPlayerHand1(Canvas canvas) {
+			handDisplayPaint.setColor(handDisplayColors[handDisplayColorIdx]);
+			canvas.drawRect(handDisplayArea, handDisplayPaint);
+
+			if (objects.size() == 0)
+				return;
+
+			int targetCardHeight = handDisplayArea.height() * 90 / 100;
+			int marginVert = (handDisplayArea.height() - targetCardHeight) / 2;
+
+			// We need the card width now, but the only way to get it is to scale
+			// a card and see the result. Do that on the first card for this purpose.
+			MyObject obj = objects.get(0);
+			obj.setHeight(targetCardHeight, true);
+			int targetCardWidth = obj.getWidth();
+
+			// Draw the cards of the hand that are currently visible.
+			int handDisplayHandWidth = (handDisplayArea.width() - marginVert) / (targetCardWidth + marginVert);
+			MyDebug.Print(dbgTag, "Display hand width: " + handDisplayHandWidth);
+
+			int marginHoriz = (handDisplayArea.width() - handDisplayHandWidth * targetCardWidth) / (handDisplayHandWidth + 1);
+			MyDebug.Print(dbgTag, "Horizontal margin: " + marginHoriz);
+
+			for (int i = 0; i < handDisplayHandWidth; i++) {
+				int idx = handDisplayFirstHandIdx + i;
+				if (idx < objects.size()) {
+					int posX = marginHoriz + i * (targetCardWidth + marginHoriz);
+					int posY = handDisplayArea.top + marginVert;
+					obj = objects.get(idx);
+					// Scale the card to fit the draw area
+					obj.setHeight(targetCardHeight, true);
+					obj.setX(posX);
+					obj.setY(posY);
+					obj.Draw(canvas);
+				}
+			}
+		}
+
 		protected void onDraw(Canvas canvas) {
 			MyDebug.Print(dbgTag, "Canvas width: " + canvas.getWidth());
 			MyDebug.Print(dbgTag, "Canvas height: " + canvas.getHeight());
@@ -104,32 +142,14 @@ public class Swipe extends Activity {
 
 			// Draw the background sections
 			canvas.drawRGB(0, 200, 0);
-			handDisplayPaint.setColor(handDisplayColors[handDisplayColorIdx]);
-			canvas.drawRect(handDisplayArea, handDisplayPaint);
 
-			// Draw the cards of the hand that are currently visible.
-			int handDisplayHandWidth = displayWidth / (10 + 193 + 10);
-			MyDebug.Print(dbgTag, "Display hand width: " + handDisplayHandWidth);
-			for (int i = 0; i < handDisplayHandWidth; i++) {
-				int idx = handDisplayFirstHandIdx + i;
-				if (idx < objects.size()) {
-					int posX = i * (10 + 193 + 10) + 10;
-					int posY = displayHeight * 75 / 100 + 20;
-					MyObject obj = objects.get(idx);
-					obj.setX(posX);
-					obj.setY(posY);
-					obj.Draw(canvas);
-//					objects.get(i).Draw(canvas);
-				}
-			}
+			// Draw the hand for example 1.
+			drawPlayerHand1(canvas);
 
 			// Draw the objects
 //			for (MyObject obj : objects) {
 //				obj.Draw(canvas);
 //			}
-
-			// Only need invalidate() if we are trying to animate?
-			//invalidate();
 		}
 	}
 
