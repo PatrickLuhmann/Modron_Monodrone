@@ -49,6 +49,8 @@
 		</activity>
 		<activity android:name=".Swipe">
 		</activity>
+		<activity android:name=".FallingDown">
+		</activity>
 	</application>
 
 </manifest>

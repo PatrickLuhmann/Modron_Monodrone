@@ -17,6 +17,7 @@ public class SampleStarter extends ListActivity {
 		"Fractal",
 		"Play Deck 1",
 		"Swipe",
+		"Falling Down",
 		"Sample Of Unknown Origin"
 	};
 
@@ -64,6 +65,10 @@ public class SampleStarter extends ListActivity {
 				break;
 			case 6:
 				intent = new Intent(this, Swipe.class);
+				startActivity(intent);
+				break;
+			case 7:
+				intent = new Intent(this, FallingDown.class);
 				startActivity(intent);
 				break;
 			default:
