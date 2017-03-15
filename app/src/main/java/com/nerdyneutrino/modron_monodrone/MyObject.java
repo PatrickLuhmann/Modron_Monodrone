@@ -13,6 +13,7 @@ public class MyObject {
 	private float pos_y;
 	private float vel_x;
 	private float vel_y;
+	private int backgroundColor;
 	private Bitmap skin;
 	private Rect dst = new Rect();
 	private boolean selected = false;
@@ -25,6 +26,7 @@ public class MyObject {
 		private float vel_x = 0;
 		private float vel_y = 0;
 		private Bitmap skin = null;
+		private int backgroundColor = 0;
 
 		public Builder(int w, int h) {
 			// Width and Height must be non-negative
@@ -57,6 +59,11 @@ public class MyObject {
 			return this;
 		}
 
+		public Builder background(int color) {
+			this.backgroundColor = color;
+			return this;
+		}
+
 		public MyObject build() {
 			return new MyObject(this);
 		}
@@ -71,6 +78,7 @@ public class MyObject {
 		vel_x = b.vel_x;
 		vel_y = b.vel_y;
 		skin = b.skin;
+		backgroundColor = b.backgroundColor;
 	}
 
 	void updatePosition(float deltaT) {
@@ -86,6 +94,12 @@ public class MyObject {
 	}
 
 	void Draw(Canvas canvas) {
+		if (backgroundColor != 0x00000000) {
+			Rect back = new Rect(dst);
+			Paint paint = new Paint();
+			paint.setColor(backgroundColor);
+			canvas.drawRect(back, paint);
+		}
 		if (skin != null) {
 			if (selected) {
 				Rect border = new Rect(dst);
