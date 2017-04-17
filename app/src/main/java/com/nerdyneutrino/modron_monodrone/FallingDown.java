@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
@@ -18,14 +19,16 @@ public class FallingDown extends Activity {
 	private final String dbgTag = this.getClass().getSimpleName();
 
 	private ThreadedRenderView renderView;
-	private GestureDetectorCompat gestureDetector;
 
 	private int displayWidth, displayHeight;
 	Rect scoreArea, playArea;
+	Paint scoreAreaPaint, playAreaPaint;
 	volatile boolean ready = false;
 
 	// Game objects
 	MyObject paddle;
+	boolean movingPaddle;
+	float paddlePrevX;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +38,6 @@ public class FallingDown extends Activity {
 			WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		renderView = new FallingDown.ThreadedRenderView(this);
 		setContentView(renderView);
-		gestureDetector = new GestureDetectorCompat(this, new FallingDown.MyGestureListener());
 
 		// Determine the size of the graphical display we have to work with.
 		renderView.post(new Runnable() {
@@ -49,6 +51,12 @@ public class FallingDown extends Activity {
 				scoreArea = new Rect(0, 0, displayWidth, displayHeight * 15 / 100);
 				playArea = new Rect(0, displayHeight * 15 / 100, displayWidth, displayHeight);
 
+				scoreAreaPaint = new Paint();
+				scoreAreaPaint.setColor(Color.GRAY);
+
+				playAreaPaint = new Paint();
+				playAreaPaint.setColor(Color.WHITE);
+
 				// Create the paddle.
 				// Width is 20% of the play area and height is 5%.
 				int paddleWidth = playArea.width() * 20 / 100;
@@ -58,6 +66,7 @@ public class FallingDown extends Activity {
 				int paddleY =  playArea.bottom - paddleHeight;
 				MyDebug.Print(dbgTag, "  paddle: [" + paddleWidth + " , " + paddleHeight + "] @ (" + paddleX + " , " + paddleY + ").");
 				paddle = new MyObject.Builder(paddleWidth, paddleHeight).posX(paddleX).posY(paddleY).background(Color.GRAY).build();
+				movingPaddle = false;
 
 				ready = true;
 			}
@@ -78,8 +87,38 @@ public class FallingDown extends Activity {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		return gestureDetector.onTouchEvent(event);
-		// TODO: Do I need to do super.onTouchEvent(event) here?
+		MyDebug.Print(dbgTag, "onTouchEvent");
+
+		switch (event.getAction()) {
+			case (MotionEvent.ACTION_DOWN):
+				MyDebug.Print(dbgTag, "  ACTION_DOWN.");
+				if (paddle.contains(event.getX(), event.getY())) {
+					MyDebug.Print(dbgTag, "  Selected the paddle.");
+					movingPaddle = true;
+					paddlePrevX = event.getX();
+				}
+				return true;
+			case MotionEvent.ACTION_MOVE:
+				MyDebug.Print(dbgTag, "  ACTION_MOVE");
+				if (movingPaddle) {
+					// Determine how much the player has moved this time.
+					float deltaX = event.getX() - paddlePrevX;
+
+					// Move the paddle that amount.
+					paddle.updatePosition(deltaX, 0);
+
+					// Save the new position of the gesture.
+					paddlePrevX = event.getX();
+				}
+				return true;
+			case MotionEvent.ACTION_UP:
+				MyDebug.Print(dbgTag, "  ACTION_UP");
+				movingPaddle = false;
+				return true;
+			default:
+				MyDebug.Print(dbgTag, "  Not caught, kicking up to super.");
+				return super.onTouchEvent(event);
+		}
 	}
 
 	// Return true if the view is to be refreshed. False will be returned
@@ -135,38 +174,14 @@ public class FallingDown extends Activity {
 				if (updateState()) {
 					// TODO: Draw game objects
 					Canvas canvas = holder.lockCanvas();
+
+					canvas.drawRect(scoreArea, scoreAreaPaint);
+					canvas.drawRect(playArea, playAreaPaint);
 					paddle.Draw(canvas);
+
 					holder.unlockCanvasAndPost(canvas);
 				}
 			}
 		}
-	}
-
-	private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-		// BKM: Always implement onDown, and always return true.
-		@Override
-		public boolean onDown(MotionEvent event) {
-			MyDebug.Print(dbgTag, "onDown: " + event.toString());
-			return true;
-		}
-
-		@Override
-		public boolean onFling(MotionEvent event1, MotionEvent event2, float velX, float velY) {
-			MyDebug.Print(dbgTag, "onFling: [" + velX + " , " + velY + "] ; " + event1.toString() + " ; " + event2.toString());
-			return true;
-		}
-
-		@Override
-		public boolean onScroll(MotionEvent event1, MotionEvent event2, float distX, float distY) {
-			MyDebug.Print(dbgTag, "onScroll: [" + distX + " , " + distY + "] ; " + event1.toString() + " ; " + event2.toString());
-			return true;
-		}
-
-		// onLongPress
-		// onShowPress
-		// onSingleTapUp
-		// onDoubleTap
-		// onDoubleTapEvent
-		// onSingleTapConfirmed
 	}
 }
