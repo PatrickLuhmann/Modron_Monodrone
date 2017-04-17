@@ -30,6 +30,8 @@ public class FallingDown extends Activity {
 	boolean movingPaddle;
 	float paddlePrevX;
 
+	MyObject ball;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -67,6 +69,13 @@ public class FallingDown extends Activity {
 				MyDebug.Print(dbgTag, "  paddle: [" + paddleWidth + " , " + paddleHeight + "] @ (" + paddleX + " , " + paddleY + ").");
 				paddle = new MyObject.Builder(paddleWidth, paddleHeight).posX(paddleX).posY(paddleY).background(Color.GRAY).build();
 				movingPaddle = false;
+
+				// Create the ball.
+				ball = new MyObject.Builder(30, 30)
+					.background(Color.RED)
+					.posX(displayWidth / 10).posY(playArea.top)
+					.velX(0).velY(displayHeight / 3)
+					.build();
 
 				ready = true;
 			}
@@ -123,10 +132,26 @@ public class FallingDown extends Activity {
 
 	// Return true if the view is to be refreshed. False will be returned
 	// before the game state is ready, or if there wasn't a change.
-	private boolean updateState() {
+	private boolean updateState(float deltaT) {
 		if (!ready)
 			return false;
 
+		// Move the ball.
+		ball.updatePosition(deltaT);
+
+		// Check to see if the ball has encountered the paddle.
+		if (ball.intersects(paddle)) {
+			MyDebug.Print(dbgTag, "The ball and the paddle have intersected.");
+			ball.setY(playArea.top);
+		}
+		// Check to see if the ball has hit the bottom.
+		if (ball.pastY(playArea.bottom)) {
+			MyDebug.Print(dbgTag, "The ball has hit the bottom.");
+			ball.setX(displayWidth / 2);
+			ball.setY(playArea.top + 50);
+			ball.setVelX(0);
+			ball.setVelY(0);
+		}
 		return true;
 	}
 
@@ -166,18 +191,23 @@ public class FallingDown extends Activity {
 		// exit when the View is paused, because running will be set to false.
 		public void run() {
 			// Thread execution loop.
+			long lastT = System.nanoTime();
 			while (running) {
 				if (!holder.getSurface().isValid())
 					continue;
 
 				// TODO: Update game state
-				if (updateState()) {
+				float deltaT = (System.nanoTime() - lastT) / 1000000000.0f;
+				lastT = System.nanoTime();
+				if (updateState(deltaT)) {
 					// TODO: Draw game objects
 					Canvas canvas = holder.lockCanvas();
 
 					canvas.drawRect(scoreArea, scoreAreaPaint);
 					canvas.drawRect(playArea, playAreaPaint);
 					paddle.Draw(canvas);
+
+					ball.Draw(canvas);
 
 					holder.unlockCanvasAndPost(canvas);
 				}

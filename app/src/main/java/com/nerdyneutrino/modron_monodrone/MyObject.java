@@ -123,6 +123,14 @@ public class MyObject {
 		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 	}
 
+	void setVelX(float val) {
+		vel_x = val;
+	}
+
+	void setVelY(float val) {
+		vel_y = val;
+	}
+
 	void setSelected() {
 		MyDebug.Print(this.getClass().getSimpleName(), "setSelected()");
 		selected = true;
@@ -141,6 +149,10 @@ public class MyObject {
 		if (dst.contains((int)x, (int)y))
 			return true;
 		return false;
+	}
+
+	boolean intersects(MyObject obj) {
+		return dst.intersect(obj.dst);
 	}
 
 	boolean pastX(int val) {
