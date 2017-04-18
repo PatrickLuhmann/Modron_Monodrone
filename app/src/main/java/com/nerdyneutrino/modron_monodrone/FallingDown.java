@@ -7,13 +7,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v4.view.GestureDetectorCompat;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
+
+import java.util.ArrayList;
 
 public class FallingDown extends Activity {
 	private final String dbgTag = this.getClass().getSimpleName();
@@ -25,7 +25,10 @@ public class FallingDown extends Activity {
 	Paint scoreAreaPaint, playAreaPaint;
 	volatile boolean ready = false;
 
-	// Game objects
+	ArrayList<MyObject> objAll;
+
+	MyObject ground;
+
 	MyObject paddle;
 	boolean movingPaddle;
 	float paddlePrevX;
@@ -59,6 +62,11 @@ public class FallingDown extends Activity {
 				playAreaPaint = new Paint();
 				playAreaPaint.setColor(Color.WHITE);
 
+				objAll = new ArrayList<MyObject>();
+
+				// Create the ground
+				ground = new MyObject.Builder(displayWidth, 0).posX(0).posY(displayHeight - 1).accel(32).background(Color.GREEN).build();
+
 				// Create the paddle.
 				// Width is 20% of the play area and height is 5%.
 				int paddleWidth = playArea.width() * 20 / 100;
@@ -68,6 +76,7 @@ public class FallingDown extends Activity {
 				int paddleY =  playArea.bottom - paddleHeight;
 				MyDebug.Print(dbgTag, "  paddle: [" + paddleWidth + " , " + paddleHeight + "] @ (" + paddleX + " , " + paddleY + ").");
 				paddle = new MyObject.Builder(paddleWidth, paddleHeight).posX(paddleX).posY(paddleY).background(Color.GRAY).build();
+				objAll.add(paddle);
 				movingPaddle = false;
 
 				// Create the ball.
@@ -76,6 +85,7 @@ public class FallingDown extends Activity {
 					.posX(displayWidth / 10).posY(playArea.top)
 					.velX(0).velY(0)
 					.build();
+				objAll.add(ball);
 
 				ready = true;
 			}
@@ -139,9 +149,7 @@ public class FallingDown extends Activity {
 		// Apply gravity to the ball. This changes the velocity of the ball.
 		// The effects of this change will be seen when the position of the
 		// ball is updated.
-		float bottomAcc = 32;
-		float deltaVy = bottomAcc * deltaT;
-		ball.changeVelY(deltaVy);
+		ball.applyGravity(ground, deltaT);
 
 		// Move the ball.
 		ball.updatePosition(deltaT);
@@ -207,13 +215,16 @@ public class FallingDown extends Activity {
 				float deltaT = (System.nanoTime() - lastT) / 1000000000.0f;
 				lastT = System.nanoTime();
 				if (updateState(deltaT)) {
-					// TODO: Draw game objects
+					// TODO: Draw game objAll
 					Canvas canvas = holder.lockCanvas();
 
 					canvas.drawRect(scoreArea, scoreAreaPaint);
 					canvas.drawRect(playArea, playAreaPaint);
-					paddle.Draw(canvas);
 
+					// TODO: Use a list of objects for this.
+					// TODO: What about z-sorting?
+					ground.Draw(canvas);
+					paddle.Draw(canvas);
 					ball.Draw(canvas);
 
 					holder.unlockCanvasAndPost(canvas);

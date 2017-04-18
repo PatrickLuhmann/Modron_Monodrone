@@ -13,6 +13,7 @@ public class MyObject {
 	private float pos_y;
 	private float vel_x;
 	private float vel_y;
+	private float accel;
 	private int backgroundColor;
 	private Bitmap skin;
 	private Rect dst = new Rect();
@@ -25,6 +26,7 @@ public class MyObject {
 		private float pos_y = 0;
 		private float vel_x = 0;
 		private float vel_y = 0;
+		private float accel = 0;
 		private Bitmap skin = null;
 		private int backgroundColor = 0;
 
@@ -54,6 +56,11 @@ public class MyObject {
 			return this;
 		}
 
+		public Builder accel(float val) {
+			this.accel = val;
+			return this;
+		}
+
 		public Builder skin(Bitmap val) {
 			this.skin = val;
 			return this;
@@ -77,6 +84,7 @@ public class MyObject {
 		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 		vel_x = b.vel_x;
 		vel_y = b.vel_y;
+		accel = b.accel;
 		skin = b.skin;
 		backgroundColor = b.backgroundColor;
 	}
@@ -222,6 +230,16 @@ public class MyObject {
 
 	public int getWidth() {
 		return width;
+	}
+
+	float getAccel() {
+		return accel;
+	}
+
+	public void applyGravity(MyObject src, float deltaT) {
+		// Do different things based on the type of gravity source:
+		// <none>, <point>, <line>
+		changeVelY(src.getAccel() * deltaT);
 	}
 }
 
