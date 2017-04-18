@@ -74,7 +74,7 @@ public class FallingDown extends Activity {
 				ball = new MyObject.Builder(30, 30)
 					.background(Color.RED)
 					.posX(displayWidth / 10).posY(playArea.top)
-					.velX(0).velY(displayHeight / 3)
+					.velX(0).velY(0)
 					.build();
 
 				ready = true;
@@ -136,13 +136,20 @@ public class FallingDown extends Activity {
 		if (!ready)
 			return false;
 
+		// Apply gravity to the ball. This changes the velocity of the ball.
+		// The effects of this change will be seen when the position of the
+		// ball is updated.
+		float bottomAcc = 32;
+		float deltaVy = bottomAcc * deltaT;
+		ball.changeVelY(deltaVy);
+
 		// Move the ball.
 		ball.updatePosition(deltaT);
 
 		// Check to see if the ball has encountered the paddle.
 		if (ball.intersects(paddle)) {
 			MyDebug.Print(dbgTag, "The ball and the paddle have intersected.");
-			ball.setY(playArea.top);
+			ball.scaleVelY(-1);
 		}
 		// Check to see if the ball has hit the bottom.
 		if (ball.pastY(playArea.bottom)) {

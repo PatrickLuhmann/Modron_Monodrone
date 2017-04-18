@@ -131,6 +131,24 @@ public class MyObject {
 		vel_y = val;
 	}
 
+	void changeVelX(float val) {
+		vel_x += val;
+	}
+
+	void changeVelY(float val) {
+		vel_y += val;
+		MyDebug.Print(this.getClass().getSimpleName(), "New vel_y: " + vel_y);
+	}
+
+	void scaleVelX(float val) {
+		vel_x *= val;
+	}
+
+	void scaleVelY(float val) {
+		vel_y *= val;
+		MyDebug.Print(this.getClass().getSimpleName(), "New vel_y: " + vel_y);
+	}
+
 	void setSelected() {
 		MyDebug.Print(this.getClass().getSimpleName(), "setSelected()");
 		selected = true;
