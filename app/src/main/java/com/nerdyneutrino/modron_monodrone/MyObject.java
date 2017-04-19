@@ -131,6 +131,9 @@ public class MyObject {
 		dst.set((int) pos_x, (int) pos_y, (int) pos_x + width - 1, (int) pos_y + height - 1);
 	}
 
+	int getX() { return (int)pos_x; }
+	int getY() { return (int)pos_y; }
+
 	void setVelX(float val) {
 		vel_x = val;
 	}
@@ -145,7 +148,7 @@ public class MyObject {
 
 	void changeVelY(float val) {
 		vel_y += val;
-		MyDebug.Print(this.getClass().getSimpleName(), "New vel_y: " + vel_y);
+		//MyDebug.Print(this.getClass().getSimpleName(), "New vel_y: " + vel_y);
 	}
 
 	void scaleVelX(float val) {
