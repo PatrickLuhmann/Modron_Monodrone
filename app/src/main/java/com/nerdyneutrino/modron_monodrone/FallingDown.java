@@ -2,6 +2,7 @@ package com.nerdyneutrino.modron_monodrone;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,6 +14,8 @@ import android.view.SurfaceView;
 import android.view.VelocityTracker;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.patrickluhmann.plobjectslibrary.PLObject;
 
 import java.util.ArrayList;
 
@@ -41,6 +44,7 @@ public class FallingDown extends Activity {
 	VelocityTracker velTracker = null;
 
 	MyObject ball;
+	PLObject ball2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +106,18 @@ public class FallingDown extends Activity {
 					.velX(0).velY(0)
 					.build();
 				objAll.add(ball);
+
+				// Create the second ball.
+
+				// First, we need a bitmap. Create one instead of loading one from file.
+				Bitmap b = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
+				Canvas c = new Canvas(b);
+				c.drawRGB(0, 255, 0);
+
+				ball2 = PLObject.builder(16, 16)
+					.skin(b)
+					.posX(displayWidth / 10 + 200).posY(playArea.top + 50)
+					.build();
 
 				ready = true;
 			}
@@ -336,7 +352,7 @@ public class FallingDown extends Activity {
 					}
 					//ground.Draw(canvas);
 					//paddle.Draw(canvas);
-					//ball.Draw(canvas);
+					ball2.draw(canvas);
 					canvas.drawRect(scoreArea, scoreAreaPaint);
 					scoreText.setLength(0);
 					scoreText.append("Score: ");
