@@ -34,6 +34,7 @@ public class FallingDown extends Activity {
 	StringBuilder scoreText;
 
 	ArrayList<MyObject> objAll;
+	ArrayList<MyObject> gravitySources;
 
 	MyObject ground, leftWall, rightWall, topWall;
 
@@ -45,6 +46,8 @@ public class FallingDown extends Activity {
 
 	MyObject ball;
 	PLObject ball2;
+	PLObject paddle2;
+	PLObject top2, left2, right2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +82,16 @@ public class FallingDown extends Activity {
 				playAreaPaint.setColor(Color.WHITE);
 
 				objAll = new ArrayList<MyObject>();
+				gravitySources = new ArrayList<MyObject>();
 
-				// Create the ground
-				objAll.add(ground = new MyObject.Builder(playArea.width(), 100).posX(playArea.left).posY(displayHeight - 1).accel(100).background(Color.GREEN).build());
+				// Create the arena
+				objAll.add(ground = new MyObject.Builder(playArea.width(), 100).posX(playArea.left).posY(displayHeight - 1).accel(0).background(Color.GREEN).build());
 				objAll.add(topWall = new MyObject.Builder(playArea.width(), 100).posX(playArea.left).posY(playArea.top - 95).background(Color.GREEN).build());
 				objAll.add(leftWall = new MyObject.Builder(100, playArea.height()).posX(playArea.left - 95).posY(playArea.top).background(Color.GREEN).build());
 				objAll.add(rightWall = new MyObject.Builder(100, playArea.height()).posX(playArea.right - 5).posY(playArea.top).background(Color.GREEN).build());
+
+				// Of these, only the ground applies a gravity affect.
+				gravitySources.add(ground);
 
 				// Create the paddle.
 				// Width is 20% of the play area and height is 5%.
@@ -103,7 +110,7 @@ public class FallingDown extends Activity {
 				ball = new MyObject.Builder(30, 30)
 					.background(Color.RED)
 					.posX(displayWidth / 10).posY(playArea.top + 50)
-					.velX(0).velY(0)
+					.velX(350).velY(450)
 					.build();
 				objAll.add(ball);
 
@@ -116,7 +123,42 @@ public class FallingDown extends Activity {
 
 				ball2 = PLObject.builder(16, 16)
 					.skin(b)
-					.posX(displayWidth / 10 + 200).posY(playArea.top + 50)
+					.posX(playArea.left + 200).posY(playArea.top + 199)
+					.velX(-400).velY(-400)
+					.build();
+
+				// Create the second paddle.
+
+				// First, we need a bitmap. Create one instead of loading one from file.
+				b = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
+				c = new Canvas(b);
+				c.drawRGB(128, 128, 128);
+
+				paddle2 = PLObject.builder(playArea.width() - 100, 16)
+					.skin(b)
+					.posX(playArea.left + 50).posY(playArea.bottom - 64)
+					.build();
+
+				// Create the top wall.
+
+				// First, we need a bitmap. Create one instead of loading one from file.
+				b = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
+				c = new Canvas(b);
+				c.drawRGB(0, 255, 128);
+
+				top2 = PLObject.builder(playArea.width(), 16)
+					.skin(b)
+					.posX(playArea.left).posY(playArea.top)
+					.build();
+
+				left2 = PLObject.builder(16, playArea.height())
+					.skin(b)
+					.posX(playArea.left).posY(playArea.top + 16)
+					.build();
+
+				right2 = PLObject.builder(16, playArea.height())
+					.skin(b)
+					.posX(playArea.right - 16).posY(playArea.top + 16)
 					.build();
 
 				ready = true;
@@ -191,6 +233,15 @@ public class FallingDown extends Activity {
 		}
 	}
 
+	private void applyGravity(PLObject tgtObj, float deltaT) {
+		float deltaVY = 0;
+		for (MyObject gravSrc : gravitySources) {
+			// TODO: Make this code more general.
+			deltaVY += (gravSrc.getAccel() * deltaT);
+		}
+		tgtObj.adjustVelocity(0, deltaVY);
+	}
+
 	// Return true if the view is to be refreshed. False will be returned
 	// before the game state is ready, or if there wasn't a change.
 	private boolean updateState(float deltaT) {
@@ -205,11 +256,89 @@ public class FallingDown extends Activity {
 		// Move the ball.
 		ball.updatePosition(deltaT);
 
+		// TODO: Experiment with new algorithms via ball2 and paddle2
+
+		float[] tempers = new float[2];
+		float remainT = deltaT;
+
+		boolean wasCollision;
+		int maxCollide = 10; // based on number of objects?
+		do {
+			wasCollision = false;
+			maxCollide--;
+
+			// Check for collision with the paddle.
+			float collideT = ball2.willCollide(paddle2, remainT);
+			if (collideT >= 0.0f) {
+				MyDebug.Print(dbgTag, "Ball2 will collide with Paddle2");
+				wasCollision = true;
+
+				// The whole point of willCollide() returning the time-to-collision
+				// is so that we can model the collision correctly. The way to do
+				// this is to updatePosition based on this value, then update the
+				// velocity based on the type of collision, then updatePosition
+				// again with the remained of deltaT.
+				ball2.updatePosition(collideT);
+
+				// This is simple bounce for test purposes
+				ball2.getVelocity(tempers);
+				ball2.setVelocity(tempers[0], tempers[1] * -1);
+
+				remainT = remainT - collideT;
+			}
+
+			// Check for collision with the top of the arena.
+			collideT = ball2.willCollide(top2, remainT);
+			if (collideT >= 0.0f) {
+				MyDebug.Print(dbgTag, "Ball2 will collide with the top of the arena.");
+				wasCollision = true;
+				ball2.updatePosition(collideT);
+
+				// This is simple bounce for test purposes
+				ball2.getVelocity(tempers);
+				ball2.setVelocity(tempers[0], tempers[1] * -1);
+
+				remainT = remainT - collideT;
+			}
+
+			// Check for collision with the left side of the arena.
+			collideT = ball2.willCollide(left2, remainT);
+			if (collideT >= 0.0f) {
+				MyDebug.Print(dbgTag, "Ball2 will collide with the left side of the arena.");
+				wasCollision = true;
+				ball2.updatePosition(collideT);
+
+				// This is simple bounce for test purposes
+				ball2.getVelocity(tempers);
+				ball2.setVelocity(tempers[0] * -1, tempers[1]);
+
+				remainT = remainT - collideT;
+			}
+
+			// Check for collision with the right side of the arena.
+			collideT = ball2.willCollide(right2, remainT);
+			if (collideT >= 0.0f) {
+				MyDebug.Print(dbgTag, "Ball2 will collide with the right side of the arena.");
+				wasCollision = true;
+				ball2.updatePosition(collideT);
+
+				// This is simple bounce for test purposes
+				ball2.getVelocity(tempers);
+				ball2.setVelocity(tempers[0] * -1, tempers[1]);
+
+				remainT = remainT - collideT;
+			}
+		} while (wasCollision && (maxCollide > 0));
+
+		// Finale update
+		ball2.updatePosition(remainT);
+
 		//MyDebug.Print(dbgTag, "Paddle X: " + paddle.getX());
 
 		// TODO: For collision detection, check for intersection of line described by
 		// begin and end point of ball with the obstacle? This is one way to handle
-		// the "tunnel-through" problem.
+		// the "tunnel-through" problem. It turns out that line intersection is a very
+		// complicated subject and Android does not seem to have anything that will do it.
 
 		// Check to see if the ball has encountered the left wall.
 		if (ball.intersects(leftWall)) {
@@ -260,10 +389,13 @@ public class FallingDown extends Activity {
 			MyDebug.Print(dbgTag, "  Manual calc of paddle displacement: " + myVelCalc + " in " + deltaT + " seconds = " + myVelCalc * deltaT);
 
 			// For the y-axis, just flip the direction/sign.
-			ball.scaleVelY(-1);
+			// TODO: For test purposes, also increase it by 10%.
+			ball.scaleVelY(-1.1f);
 
 			// For the x-axis, apply some of the velocity of the paddle to the ball.
 			ball.changeVelX(velX / 10);
+			// TODO: Increase by 10%.
+			ball.scaleVelX(1.1f);
 
 			// TODO: The ball is at least partially inside the paddle, which does not make sense.
 			// Figure out how to handle this in a good way. Displacing it such that it is just
@@ -336,6 +468,7 @@ public class FallingDown extends Activity {
 				// TODO: Update game state
 				float deltaT = (System.nanoTime() - lastT) / 1000000000.0f;
 				lastT = System.nanoTime();
+				//MyDebug.Print(dbgTag, "deltaT: " + deltaT);
 				//TODO: If deltaT is too large, would it be possible to loop updateState
 				// several times to provide smaller time-slices? This might be needed in
 				// order to prevent a fast-moving object from "hopping over" a thin object.
@@ -352,7 +485,12 @@ public class FallingDown extends Activity {
 					}
 					//ground.Draw(canvas);
 					//paddle.Draw(canvas);
+
+					top2.draw(canvas);
+					left2.draw(canvas);
+					right2.draw(canvas);
 					ball2.draw(canvas);
+					paddle2.draw(canvas);
 					canvas.drawRect(scoreArea, scoreAreaPaint);
 					scoreText.setLength(0);
 					scoreText.append("Score: ");
